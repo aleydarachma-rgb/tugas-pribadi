@@ -140,7 +140,6 @@
       border-radius: 15px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       margin-bottom: 35px;
-      position: relative;
     }
 
     .biodata-card h2 {
@@ -232,7 +231,8 @@
 
     .task-actions {
       display: flex;
-      gap: 10px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .btn-action {
@@ -246,11 +246,24 @@
       border-radius: 8px;
       font-weight: 600;
       font-size: 0.9rem;
-      transition: background 0.2s ease;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .btn-action:hover {
       background: var(--butter);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--goldfinch);
+      color: var(--butter);
+    }
+
+    .btn-secondary:hover {
+      background: var(--indian-red);
+      color: var(--butter);
     }
 
     .btn-back {
@@ -267,6 +280,75 @@
     .btn-back:hover {
       background: var(--garnet);
       color: var(--butter);
+    }
+
+    /* ================= MODAL PREVIEW DOKUMEN ================= */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-dark);
+      border: 2px solid var(--goldfinch);
+      border-radius: 15px;
+      width: 100%;
+      max-width: 900px;
+      height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
+    .modal-header {
+      background: var(--garnet);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--indian-red);
+    }
+
+    .modal-header h4 {
+      color: var(--butter);
+      font-size: 1.1rem;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--butter);
+      font-size: 1.8rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-body {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: #333;
+    }
+
+    .modal-body iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
@@ -324,16 +406,36 @@
           Laporan praktikum mengenai pengujian presisi, ketidakpastian pengukuran, dan analisis data eksperimen.
         </div>
         <div class="task-actions">
-          <!-- LINK DIARAHKAN KE juara.docx -->
-         <a href="juara.docx" target="_blank" class="btn-action">
-            📥 Lihat / Unduh Tugas
+          
+          <!-- TOMBOL 1: LIHAT PREVIEW (Menggunakan juknis.pdf) -->
+          <button class="btn-action" onclick="openPreview('juknis.pdf', 'Tugas 1: Laporan Praktikum')">
+            👁️ Lihat Preview
+          </button>
+
+          <!-- TOMBOL 2: DOWNLOAD FILE (Menggunakan juknis.pdf) -->
+          <a href="juknis.pdf" download class="btn-action btn-secondary">
+            📥 Download File
           </a>
+
         </div>
       </div>
 
     </div>
 
     <button class="btn-back" onclick="exitPortal()">&larr; Kembali ke Halaman Utama</button>
+  </div>
+
+  <!-- ================= POPUP MODAL PREVIEW ================= -->
+  <div id="preview-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="modal-title">Preview Dokumen</h4>
+        <button class="close-btn" onclick="closePreview()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="preview-frame" src=""></iframe>
+      </div>
+    </div>
   </div>
 
   <!-- JAVASCRIPT -->
@@ -346,6 +448,33 @@
     function exitPortal() {
       document.getElementById('dashboard-page').classList.remove('active');
       document.getElementById('login-page').classList.add('active');
+    }
+
+    // FUNGSI PREVIEW DOKUMEN
+    function openPreview(fileUrl, title) {
+      const modal = document.getElementById('preview-modal');
+      const frame = document.getElementById('preview-frame');
+      const modalTitle = document.getElementById('modal-title');
+
+      modalTitle.innerText = "Preview: " + title;
+
+      // Jika file berupa Word (.docx), gunakan Google Docs Viewer
+      if (fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc')) {
+        const fullUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/' + fileUrl;
+        frame.src = "https://docs.google.com/viewer?url=" + encodeURIComponent(fullUrl) + "&embedded=true";
+      } else {
+        // Jika file berupa PDF, buka langsung di iframe
+        frame.src = fileUrl;
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closePreview() {
+      const modal = document.getElementById('preview-modal');
+      const frame = document.getElementById('preview-frame');
+      modal.classList.remove('active');
+      frame.src = "";
     }
 
     // Three.js 3D Animation
